@@ -19,11 +19,15 @@
 
 ; sp_executesql's first argument is the dynamic SQL batch text — anchored
 ; so a later exec_argument (a parameter-declaration string, or a literal
-; value bound to a named parameter) is not captured as SQL too.
+; value bound to a named parameter) is not captured as SQL too. The name
+; check spells out case-insensitivity letter by letter rather than an
+; inline `(?i)` flag: the Rust `regex` crate accepts `(?i)`, but the Node
+; binding compiles this pattern with a plain JS `RegExp`, which rejects it
+; as an invalid group.
 (execute_statement
   procedure: (object_reference
     name: (identifier) @_proc)
   . (exec_argument
     value: (literal) @injection.content)
-  (#match? @_proc "(?i)^sp_executesql$")
+  (#match? @_proc "^[sS][pP]_[eE][xX][eE][cC][uU][tT][eE][sS][qQ][lL]$")
   (#set! injection.language "sql"))
