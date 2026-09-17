@@ -16,6 +16,8 @@ export default {
   keyword_update: _ => make_keyword("update"),
   keyword_truncate: _ => make_keyword("truncate"),
   keyword_merge: _ => make_keyword("merge"),
+  // ALTER PARTITION FUNCTION name() SPLIT RANGE (...) | MERGE RANGE (...).
+  keyword_split: _ => make_keyword("split"),
   keyword_into: _ => make_keyword("into"),
   keyword_values: _ => make_keyword("values"),
   keyword_value: _ => make_keyword("value"),
@@ -113,6 +115,8 @@ export default {
   keyword_array: _ => make_keyword("array"),
   keyword_wrapper: _ => make_keyword("wrapper"),
   keyword_next: _ => make_keyword("next"),
+  // ALTER PARTITION SCHEME name NEXT USED [filegroup].
+  keyword_used: _ => make_keyword("used"),
   keyword_for: _ => make_keyword("for"),
 
   // Window functions
@@ -271,6 +275,8 @@ export default {
   keyword_minvalue: _ => make_keyword("minvalue"),
   keyword_maxvalue: _ => make_keyword("maxvalue"),
   keyword_start: _ => make_keyword("start"),
+  // ALTER FULLTEXT INDEX ON table STOP POPULATION.
+  keyword_stop: _ => make_keyword("stop"),
   keyword_restart: _ => make_keyword("restart"),
   keyword_cycle: _ => make_keyword("cycle"),
   keyword_cache: _ => make_keyword("cache"),
@@ -347,6 +353,8 @@ export default {
   keyword_modify: _ => make_keyword("modify"),
   keyword_without: _ => make_keyword("without"),
   keyword_to: _ => make_keyword("to"),
+  // TRUNCATE TABLE ... WITH (PARTITIONS (1, 3 TO 5)).
+  keyword_partitions: _ => make_keyword("partitions"),
   keyword_grant: _ => make_keyword("grant"),
   keyword_revoke: _ => make_keyword("revoke"),
   keyword_deny: _ => make_keyword("deny"),
