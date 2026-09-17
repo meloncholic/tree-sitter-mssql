@@ -17,6 +17,8 @@ export default {
   keyword_truncate: _ => make_keyword("truncate"),
   keyword_merge: _ => make_keyword("merge"),
   // ALTER PARTITION FUNCTION name() SPLIT RANGE (...) | MERGE RANGE (...).
+  // Probed clean in both the AS-less-alias and bare-column identifier
+  // positions.
   keyword_split: _ => make_keyword("split"),
   keyword_into: _ => make_keyword("into"),
   keyword_values: _ => make_keyword("values"),
@@ -116,6 +118,8 @@ export default {
   keyword_wrapper: _ => make_keyword("wrapper"),
   keyword_next: _ => make_keyword("next"),
   // ALTER PARTITION SCHEME name NEXT USED [filegroup].
+  // Probed clean in both the AS-less-alias and bare-column identifier
+  // positions.
   keyword_used: _ => make_keyword("used"),
   keyword_for: _ => make_keyword("for"),
 
@@ -252,6 +256,8 @@ export default {
   keyword_trigger: _ => make_keyword("trigger"),
   keyword_instead: _ => make_keyword("instead"),
   keyword_after: _ => make_keyword("after"),
+  // ALTER DATABASE ... WITH ROLLBACK AFTER <n> SECONDS.
+  keyword_seconds: _ => make_keyword("seconds"),
   keyword_append: _ => make_keyword("append"),
   keyword_replication: _ => make_keyword("replication"),
   keyword_encryption: _ => make_keyword("encryption"),
@@ -354,6 +360,8 @@ export default {
   keyword_without: _ => make_keyword("without"),
   keyword_to: _ => make_keyword("to"),
   // TRUNCATE TABLE ... WITH (PARTITIONS (1, 3 TO 5)).
+  // Probed clean in both the AS-less-alias and bare-column identifier
+  // positions.
   keyword_partitions: _ => make_keyword("partitions"),
   keyword_grant: _ => make_keyword("grant"),
   keyword_revoke: _ => make_keyword("revoke"),

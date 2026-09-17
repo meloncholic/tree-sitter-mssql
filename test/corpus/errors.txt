@@ -1,3 +1,78 @@
+==================
+^select
+==================
+
+selections
+
+---
+
+(program
+  (ERROR
+    (identifier)))
+
+==================
+^selections for your perusal
+==================
+
+selections for your perusal
+
+---
+
+(program
+  (ERROR
+    (identifier)
+    (keyword_for)))
+
+==================
+^inserted_at
+==================
+
+inserted_at
+
+---
+
+(program
+  (statement
+    (label_statement
+      (identifier)
+      (MISSING ":"))))
+
+==================
+^updated_at
+==================
+
+updated_at
+
+---
+
+(program
+  (ERROR
+    (identifier)))
+
+==================
+^deleted_at
+==================
+
+deleted_at
+
+---
+
+(program
+  (ERROR
+    (identifier)))
+
+==================
+^created_at
+==================
+
+created_at
+
+---
+
+(program
+  (ERROR
+    (identifier)))
+
 ================================================================================
 A positional argument after a named one is an error, as SQL Server's Msg 119 says
 ================================================================================

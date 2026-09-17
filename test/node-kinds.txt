@@ -446,6 +446,7 @@ keyword_schemabinding
 keyword_scheme
 keyword_scoped
 keyword_secondary
+keyword_seconds
 keyword_security
 keyword_select
 keyword_self

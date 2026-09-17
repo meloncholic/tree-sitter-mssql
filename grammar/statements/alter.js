@@ -164,16 +164,22 @@ export default {
         seq(
           $.keyword_set,
           comma_list($.option, true),
-          // ROLLBACK IMMEDIATE | ROLLBACK AFTER <n> SECONDS — IMMEDIATE and
-          // SECONDS are both bare identifiers here (neither is a reserved
-          // word elsewhere in this position), matching how IMMEDIATE was
-          // already handled before AFTER was added.
+          // ROLLBACK IMMEDIATE | ROLLBACK AFTER <n> [SECONDS] — IMMEDIATE is
+          // a bare identifier here (not a reserved word elsewhere in this
+          // position), matching how it was already handled before AFTER
+          // was added. SECONDS is a real keyword rather than a bare
+          // optional identifier: SQL Server's own syntax treats it as the
+          // literal trailing word, and leaving it as an optional bare
+          // identifier would let it swallow a following statement's label
+          // (`ROLLBACK AFTER 60 mylabel: ...`) the same way `keyword_bulk`
+          // documents for TRUNCATE — anchoring it on a real keyword removes
+          // that ambiguity, since `mylabel` no longer matches.
           optional(seq($.keyword_with, choice(
             seq(
               $.keyword_rollback,
               choice(
                 $.identifier,
-                seq($.keyword_after, field('seconds', $.literal), $.identifier),
+                seq($.keyword_after, field('seconds', $.literal), optional($.keyword_seconds)),
               ),
             ),
             $.identifier,
@@ -287,6 +293,9 @@ export default {
   // No prec.right, for the same trailing-WITH-vs-following-CTE reason
   // `truncate_statement` documents — see the `[$.alter_queue]` conflicts
   // entry in grammar.js.
+  // REBUILD's option list is parenthesized (`WITH (option = value, ...)`);
+  // REORGANIZE only ever takes the single bare `WITH LOB_COMPACTION = value`
+  // form, with no parentheses — the two are not interchangeable.
   alter_queue: $ => seq(
     $.keyword_alter,
     $.keyword_queue,
@@ -294,7 +303,7 @@ export default {
     choice(
       $.with_clause,
       seq($.keyword_rebuild, optional($.with_options)),
-      seq($.keyword_reorganize, optional($.with_options)),
+      seq($.keyword_reorganize, optional($.with_clause)),
     ),
   ),
 
@@ -303,8 +312,11 @@ export default {
   // DROP FILE and ADD FILE are independently optional and may both appear
   // in one statement (replacing a source file is DROP then ADD, in that
   // order per SQL Server's own syntax reference) — not a mutually
-  // exclusive choice.
-  alter_assembly: $ => prec.right(seq(
+  // exclusive choice. No prec.right: with neither DROP FILE nor ADD FILE
+  // present, the trailing WITH has the same trailing-WITH-vs-following-CTE
+  // ambiguity `alter_fulltext_catalog` documents — see the
+  // `[$.alter_assembly]` conflicts entry in grammar.js.
+  alter_assembly: $ => seq(
     $.keyword_alter,
     $.keyword_assembly,
     $.identifier,
@@ -321,7 +333,7 @@ export default {
       $.keyword_from,
       comma_list(seq($.literal, optional(seq($.keyword_as, $.identifier))), true),
     )),
-  )),
+  ),
 
   // ALTER FULLTEXT CATALOG name { REBUILD [WITH (ACCENT_SENSITIVITY = ON|OFF)] | REORGANIZE | AS DEFAULT }
   // No prec.right: SQL Server's real REBUILD form is the bare `with_clause`
@@ -354,16 +366,22 @@ export default {
   //   | STOP POPULATION }
   // FULL/INCREMENTAL/UPDATE/POPULATION and the SET target words are bare
   // identifiers, the same treatment every other DDL option word gets.
-  // SET's target is `repeat1($.identifier)` rather than the two-word-max
-  // `$.option` since a real target can be four words (SEARCH PROPERTY LIST
-  // name). "WITH NO POPULATION" reuses `with_clause` — `option`'s own
-  // optional bare-value form already reads NO/POPULATION as name/value.
+  // SET's target is bounded to the two real shapes (a two-word target like
+  // STOPLIST/CHANGE_TRACKING, or the four-word SEARCH PROPERTY LIST name)
+  // rather than an unbounded `repeat1($.identifier)`, which would keep
+  // consuming bare words past the option value and swallow a following
+  // statement's label. "WITH NO POPULATION" reuses `with_clause` —
+  // `option`'s own optional bare-value form already reads NO/POPULATION as
+  // name/value.
   // STOP is anchored on a real `keyword_stop` (probed clean in both the
   // AS-less-alias and bare-column identifier positions, matching every
   // other keyword this grammar adds) rather than a second bare identifier
   // next to START's — a bare-identifier-pair catch-all would silently
   // accept any two words after the object reference.
-  alter_fulltext_index: $ => prec.right(seq(
+  // No prec.right, for the same trailing-WITH-vs-following-CTE reason
+  // `alter_fulltext_catalog` documents — see the `[$.alter_fulltext_index]`
+  // conflicts entry in grammar.js.
+  alter_fulltext_index: $ => seq(
     $.keyword_alter,
     $.keyword_fulltext,
     $.keyword_index,
@@ -372,13 +390,20 @@ export default {
     choice(
       $.keyword_enable,
       $.keyword_disable,
-      seq($.keyword_set, repeat1($.identifier), optional($.with_clause)),
+      seq(
+        $.keyword_set,
+        choice(
+          seq($.identifier, $.identifier, $.identifier, $.identifier),
+          seq($.identifier, $.identifier),
+        ),
+        optional($.with_clause),
+      ),
       seq($.keyword_add, paren_list($.fulltext_index_column, true), optional($.with_clause)),
       seq($.keyword_drop, paren_list($.identifier, true), optional($.with_clause)),
       seq($.keyword_start, $.identifier, $.identifier),
       seq($.keyword_stop, $.identifier),
     ),
-  )),
+  ),
 
   // ALTER PARTITION FUNCTION name() { SPLIT | MERGE } RANGE (boundary_value)
   // The boundary value is `_expression`, not `literal` — sliding-window
@@ -389,7 +414,7 @@ export default {
     $.keyword_partition,
     $.keyword_function,
     $.identifier,
-    seq('(', ')'),
+    wrapped_in_parenthesis(),
     choice($.keyword_split, $.keyword_merge),
     $.keyword_range,
     wrapped_in_parenthesis($._expression),
@@ -406,13 +431,17 @@ export default {
     optional($.identifier),
   )),
 
-  // ALTER ROUTE name WITH option [, ...]   (Service Broker)
+  // ALTER ROUTE name [WITH option [, ...]]   (Service Broker)
   // The bare `with_clause` mirrors `create_route`'s own WITH option list.
+  // WITH is optional here — a no-op ALTER ROUTE with no options is valid —
+  // which gives the trailing WITH the same trailing-WITH-vs-following-CTE
+  // ambiguity `alter_fulltext_catalog` documents; see the `[$.alter_route]`
+  // conflicts entry in grammar.js.
   alter_route: $ => seq(
     $.keyword_alter,
     $.keyword_route,
     $.identifier,
-    $.with_clause,
+    optional($.with_clause),
   ),
 
 };

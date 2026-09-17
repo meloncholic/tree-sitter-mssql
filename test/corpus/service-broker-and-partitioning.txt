@@ -544,6 +544,7 @@ ALTER QUEUE
 
 ALTER QUEUE dbo.OrderQueue WITH STATUS = OFF;
 ALTER QUEUE dbo.OrderQueue REBUILD;
+ALTER QUEUE dbo.OrderQueue REORGANIZE WITH LOB_COMPACTION = ON;
 
 --------------------------------------------------------------------------------
 
@@ -567,7 +568,20 @@ ALTER QUEUE dbo.OrderQueue REBUILD;
       (object_reference
         schema: (identifier)
         name: (identifier))
-      (keyword_rebuild))))
+      (keyword_rebuild)))
+  (statement
+    (alter_queue
+      (keyword_alter)
+      (keyword_queue)
+      (object_reference
+        schema: (identifier)
+        name: (identifier))
+      (keyword_reorganize)
+      (with_clause
+        (keyword_with)
+        (option
+          name: (identifier)
+          value: (keyword_on))))))
 
 ================================================================================
 ALTER ASSEMBLY
@@ -716,6 +730,7 @@ ALTER ROUTE
 ================================================================================
 
 ALTER ROUTE r WITH ADDRESS = N'TCP://host:1234';
+ALTER ROUTE r;
 
 --------------------------------------------------------------------------------
 
@@ -729,7 +744,12 @@ ALTER ROUTE r WITH ADDRESS = N'TCP://host:1234';
         (keyword_with)
         (option
           name: (identifier)
-          value: (literal))))))
+          value: (literal)))))
+  (statement
+    (alter_route
+      (keyword_alter)
+      (keyword_route)
+      (identifier))))
 
 ================================================================================
 $PARTITION function

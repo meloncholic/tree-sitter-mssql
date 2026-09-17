@@ -581,6 +581,10 @@
           "named": true
         },
         {
+          "type": "keyword_seconds",
+          "named": true
+        },
+        {
           "type": "keyword_set",
           "named": true
         },
@@ -20714,6 +20718,10 @@
   },
   {
     "type": "keyword_secondary",
+    "named": true
+  },
+  {
+    "type": "keyword_seconds",
     "named": true
   },
   {
